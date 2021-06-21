@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"gin-api/pkg/setting"
 	"log"
+	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )
 
 var db *gorm.DB
 
-type model struct{
+type Model struct{
 	ID int `gorm:"primary_key" json:"id"`
-	CreatedOn int `json:"created_on"`
-	ModifiedOn int `json:"modified_on"`
+	CreatedOn int `gorm:"column:created_on" json:"created_on"`
+	ModifiedOn int `gorm:"column:modified_on" json:"modified_on"`
 }
 
 func init() {
@@ -52,6 +54,7 @@ func init() {
 	db.LogMode(true)
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
+	db.DB().SetConnMaxLifetime(time.Minute)
 }
 
 func CloseDB() {
