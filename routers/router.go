@@ -2,6 +2,8 @@ package routers
 
 import (
 	"gin-api/pkg/setting"
+	"gin-api/routers/api"
+	"gin-api/middleware/jwt"
 	v1 "gin-api/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,10 @@ func InitRouter() *gin.Engine {
 
     gin.SetMode(setting.RunMode)
 
+	r.GET("/auth", api.GetAuth)
+
     apiv1 := r.Group("/api/v1")
+	apiv1.Use(jwt.JWT())
 	{
 		apiv1.GET("/tags", v1.GetTags) //获取标签列表
 		apiv1.POST("/tags", v1.AddTag) //新建标签
