@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"log"
-    "gin-api/models"
+	"gin-api/models"
 	"gin-api/pkg/e"
+	"gin-api/pkg/logging"
 	"gin-api/pkg/setting"
 	"gin-api/pkg/util"
 	"net/http"
@@ -31,7 +31,7 @@ func GetArticle(c *gin.Context) {
         }
     } else {
         for _, err := range valid.Errors {
-            log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
         }
     }
 
@@ -73,7 +73,7 @@ func GetArticles(c *gin.Context) {
 
     } else {
         for _, err := range valid.Errors {
-            log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
         }
     }
 
@@ -119,7 +119,7 @@ func AddArticle(c *gin.Context) {
         }
     } else {
         for _, err := range valid.Errors {
-            log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
         }
     }
 
@@ -184,7 +184,7 @@ func EditArticle(c *gin.Context) {
         }
     } else {
         for _, err := range valid.Errors {
-            log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
         }
     }
 
@@ -212,7 +212,7 @@ func DeleteArticle(c *gin.Context) {
         }
     } else {
         for _, err := range valid.Errors {
-            log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
         }
     }
 

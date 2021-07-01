@@ -3,6 +3,7 @@ package api
 import (
 	"gin-api/models"
 	"gin-api/pkg/e"
+	"gin-api/pkg/logging"
 	"gin-api/pkg/util"
 	"net/http"
 
@@ -37,6 +38,10 @@ func GetAuth(c *gin.Context) {
 			}
 		} else {
 			code = e.ERROR_AUTH
+		}
+	} else {
+		for _, err := range v.Errors {
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
