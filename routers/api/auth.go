@@ -37,7 +37,7 @@ func GetAuth(c *gin.Context) {
 				data["token"] = token
 			}
 		} else {
-			code = e.ERROR_AUTH
+			code = e.ERROR_USER_EXIST
 		}
 	} else {
 		for _, err := range v.Errors {
@@ -46,9 +46,9 @@ func GetAuth(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code" : code,
-		"msg" : e.GetMsg(code),
-		"data" : data,
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": data,
 	})
 
 }
