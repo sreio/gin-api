@@ -4,9 +4,12 @@ import (
 	"gin-api/pkg/setting"
 	"gin-api/routers/api"
 	"gin-api/middleware/jwt"
+	_ "gin-api/docs"
 	v1 "gin-api/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func InitRouter() *gin.Engine {
@@ -17,6 +20,8 @@ func InitRouter() *gin.Engine {
     r.Use(gin.Recovery())
 
     gin.SetMode(setting.RunMode)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.GET("/auth", api.GetAuth)
 
