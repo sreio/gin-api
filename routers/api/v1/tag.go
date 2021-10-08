@@ -3,6 +3,7 @@ package v1
 import (
 	"gin-api/models"
 	"gin-api/pkg/e"
+	"gin-api/pkg/logging"
 	"gin-api/pkg/setting"
 	"gin-api/pkg/util"
 	"net/http"
@@ -67,6 +68,10 @@ func AddTag(c *gin.Context) {
         } else {
             code = e.ERROR_EXIST_TAG
         }
+    } else {
+        for _, err := range valid.Errors {
+			logging.Fatal(err.Key, err.Message)
+        }
     }
 
     c.JSON(http.StatusOK, gin.H{
@@ -120,6 +125,10 @@ func UpdateTag(c *gin.Context) {
         } else {
             code = e.ERROR_NOT_EXIST_TAG
         }       
+    } else {
+        for _, err := range vaid.Errors {
+			logging.Fatal(err.Key, err.Message)
+        }
     }
 
     c.JSON(http.StatusOK, gin.H{

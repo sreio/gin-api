@@ -55,8 +55,35 @@ func init() {
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
 	db.DB().SetConnMaxLifetime(time.Minute)
+
+	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
 }
 
 func CloseDB() {
 	defer db.Close()
+}
+
+func updateTimeStampForCreateCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		nowTime := time.Now().Unix()
+
+		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok { // 判断是否存在这个字段
+			if createTimeField.IsBlank { // 判断字段值是否为空
+				createTimeField.Set(nowTime)
+			}
+		}
+
+		if modifyTimeField, ok := scope.FieldByName("modifiedOn"); ok {
+			if modifyTimeField.IsBlank {
+				modifyTimeField.Set(nowTime)
+			}
+		}
+	}
+}
+
+func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
+	if _, ok := scope.Get("gorm:update_column"); !ok { // 查找等于gorm:update_column的字段属性
+		scope.SetColumn("ModifiedOn", time.Now().Unix()) // 如果没有指定gorm:update_column 则设置ModifiedOn
+	}
 }
