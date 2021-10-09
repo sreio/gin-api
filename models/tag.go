@@ -2,9 +2,9 @@ package models
 
 import (
 	"fmt"
-	"time"
+	_ "time"
 
-	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm"
 )
 
 type Tag struct{
@@ -63,12 +63,17 @@ func ExistTagByID(id int) bool {
     return tag.ID > 0
 }
 
-func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
-	scope.SetColumn("CreatedOn", time.Now().Unix())
-	return nil
-}
+// func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
+// 	scope.SetColumn("CreatedOn", time.Now().Unix())
+// 	return nil
+// }
 
-func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
-	scope.SetColumn("ModifiedOn", time.Now().Unix())
-	return nil
+// func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
+// 	scope.SetColumn("ModifiedOn", time.Now().Unix())
+// 	return nil
+// }
+
+func CleanAllTag() bool {
+	db.Unscoped().Where("deleted_on != ? ", 0).Delete(&Tag{})
+	return true
 }

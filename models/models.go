@@ -16,6 +16,7 @@ type Model struct{
 	ID int `gorm:"primary_key" json:"id"`
 	CreatedOn int `gorm:"column:created_on" json:"created_on"`
 	ModifiedOn int `gorm:"column:modified_on" json:"modified_on"`
+	DeletedOn int `json:"deleted_on"`
 }
 
 func init() {
@@ -58,6 +59,7 @@ func init() {
 
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 }
 
 func CloseDB() {
@@ -86,4 +88,40 @@ func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok { // 查找等于gorm:update_column的字段属性
 		scope.SetColumn("ModifiedOn", time.Now().Unix()) // 如果没有指定gorm:update_column 则设置ModifiedOn
 	}
+}
+
+func deleteCallback(scope *gorm.Scope) {
+    if !scope.HasError() {
+        var extraOption string
+        if str, ok := scope.Get("gorm:delete_option"); ok {
+            extraOption = fmt.Sprint(str)
+        }
+
+        deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+
+        if !scope.Search.Unscoped && hasDeletedOnField {
+            scope.Raw(fmt.Sprintf(
+                "UPDATE %v SET %v=%v%v%v",
+                scope.QuotedTableName(),      //scope.QuotedTableName() 返回引用的表名，这个方法 GORM 会根据自身逻辑对表名进行一些处理
+                scope.Quote(deletedOnField.DBName),
+                scope.AddToVars(time.Now().Unix()), //scope.AddToVars 该方法可以添加值作为 SQL 的参数，也可用于防范 SQL 注入
+                addExtraSpaceIfExist(scope.CombinedConditionSql()), //scope.CombinedConditionSql() 返回组合好的条件 SQL
+                addExtraSpaceIfExist(extraOption),
+            )).Exec()
+        } else {
+            scope.Raw(fmt.Sprintf(
+                "DELETE FROM %v%v%v",
+                scope.QuotedTableName(),
+                addExtraSpaceIfExist(scope.CombinedConditionSql()),
+                addExtraSpaceIfExist(extraOption),
+            )).Exec()
+        }
+    }
+}
+
+func addExtraSpaceIfExist(str string) string {
+    if str != "" {
+        return " " + str
+    }
+    return ""
 }
